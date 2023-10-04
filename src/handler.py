@@ -11,7 +11,7 @@ import runpod
 import os
 
 # Prepare the model and tokenizer
-MODEL_NAME = os.environ.get('MODEL_NAME')
+MODEL_NAME = os.environ.get('MODEL_NAME', "Weni/WeniGPT-L-70-4bit")
 MODEL_BASE_PATH = os.environ.get('MODEL_BASE_PATH', '/runpod-volume/')
 STREAMING = os.environ.get('STREAMING', False) == 'True'
 TOKENIZER = os.environ.get('TOKENIZER', None)
