@@ -10,6 +10,13 @@ WORKDIR /
 
 # Update and upgrade the system packages (Worker Template)
 ARG DEBIAN_FRONTEND=noninteractive
+
+# Install supported GCC version
+#RUN apt-get update && \
+#    apt-get install -y gcc-11 g++-11 && \
+#    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 50 --slave /usr/bin/g++ g++ /usr/bin/g++-11
+
+RUN pip install --upgrade pip
 RUN pip uninstall torch -y
 RUN pip install torch==2.0.1 -f https://download.pytorch.org/whl/cu118
 COPY builder/setup.sh /setup.sh
@@ -17,15 +24,39 @@ RUN chmod +x /setup.sh && \
     /setup.sh && \
     rm /setup.sh
 
-# Install fast api
-RUN pip install fastapi==0.99.1
+# Set CUDA environment variables
+ENV cuda_home=/usr/local/cuda-11.8
+ENV PATH=${cuda_home}/bin:$PATH
+ENV LD_LIBRARY_PATH=${cuda_home}/lib64:$LD_LIBRARY_PATH
 
-# Install Python dependencies (Worker Template)
-COPY builder/requirements.txt /requirements.txt
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && \
-    pip install --upgrade -r /requirements.txt --no-cache-dir && \
-    rm /requirements.txt
+RUN echo "$(pip list | grep torch)"
+RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
+
+# If HF_MODEL_QUANTIZE="gptq" then install vllm (GPTQ Fork) from the source
+# Otherwise if HF_MODEL_QUANTIZE="awq" then install vllm==0.2.0 from PyPI
+# Else install vllm==0.2.0 from PyPI
+RUN if [ "$HF_MODEL_QUANTIZE" = "gptq" ]; then \
+        apt-get update && apt-get install -y wget \
+        && wget https://github.com/matthew-mcateer/vllm-gptq/releases/download/v0.0.1/vllm-0.1.7-cp310-cp310-manylinux1_x86_64.whl \
+        && pip install vllm-0.1.7-cp310-cp310-manylinux1_x86_64.whl \
+    elif [ "$HF_MODEL_QUANTIZE" = "awq" ]; then \
+        pip install fastapi==0.99.1 \
+        vllm==0.2.0 \
+        huggingface-hub==0.16.4 \
+        runpod==1.2.1 \
+    else \
+        pip install fastapi==0.99.1 \
+        vllm==0.2.0 \
+        huggingface-hub==0.16.4 \
+        runpod==1.2.1 \
+    fi
+
+
+RUN echo $(pip list | grep torch)
+RUN echo $(python -c "import torch; print(torch.version.cuda)")
+## Install Python dependencies (Worker Template)
+#RUN --mount=type=cache,target=/root/.cache/pip \
+#    pip install fastapi==0.99.1 vllm==0.2.0 huggingface-hub==0.16.4 runpod==1.2.1
 
 # Add src files (Worker Template)
 ADD src .  
@@ -38,7 +69,9 @@ ARG HUGGING_FACE_HUB_TOKEN=
 ENV HUGGING_FACE_HUB_TOKEN=$HUGGING_FACE_HUB_TOKEN
 
 # Prepare argument for the model and tokenizer
-ARG MODEL_NAME="Weni/WeniGPT-L-70-4bit"
+#ARG MODEL_NAME="Weni/WeniGPT-L-70-4bit"
+#ARG MODEL_NAME="KaleDivergence/WeniGPT-L-70-AWQ"
+ARG MODEL_NAME=
 ENV MODEL_NAME=$MODEL_NAME
 ARG MODEL_REVISION="main"
 ENV MODEL_REVISION=$MODEL_REVISION
