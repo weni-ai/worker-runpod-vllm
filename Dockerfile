@@ -36,20 +36,21 @@ RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 # Otherwise if HF_MODEL_QUANTIZE="awq" then install vllm==0.2.0 from PyPI
 # Else install vllm==0.2.0 from PyPI
 RUN if [ "$HF_MODEL_QUANTIZE" = "gptq" ]; then \
-        apt-get update && apt-get install -y wget \
-        && wget https://github.com/matthew-mcateer/vllm-gptq/releases/download/v0.0.1/vllm-0.1.7-cp310-cp310-manylinux1_x86_64.whl \
-        && pip install vllm-0.1.7-cp310-cp310-manylinux1_x86_64.whl \
+        apt-get update && apt-get install -y wget; \
+        wget https://github.com/matthew-mcateer/vllm-gptq/releases/download/v0.0.1/vllm-0.1.7-cp310-cp310-manylinux1_x86_64.whl; \
+        pip install vllm-0.1.7-cp310-cp310-manylinux1_x86_64.whl; \
     elif [ "$HF_MODEL_QUANTIZE" = "awq" ]; then \
         pip install fastapi==0.99.1 \
         vllm==0.2.0 \
         huggingface-hub==0.16.4 \
-        runpod==1.2.1 \
+        runpod==1.2.1; \
     else \
         pip install fastapi==0.99.1 \
         vllm==0.2.0 \
         huggingface-hub==0.16.4 \
-        runpod==1.2.1 \
+        runpod==1.2.1; \
     fi
+
 
 
 RUN echo $(pip list | grep torch)
@@ -60,6 +61,11 @@ RUN echo $(python -c "import torch; print(torch.version.cuda)")
 
 # Add src files (Worker Template)
 ADD src .  
+RUN chmod +x ./benchmark.py
+RUN chmod +x ./download_model.py
+RUN chmod +x ./handler.py
+RUN chmod +x ./metrics.py
+RUN chmod +x ./templates.py
 
 # Quick temporary updates
 RUN pip install git+https://github.com/runpod/runpod-python@a1#egg=runpod --compile
@@ -69,9 +75,9 @@ ARG HUGGING_FACE_HUB_TOKEN=
 ENV HUGGING_FACE_HUB_TOKEN=$HUGGING_FACE_HUB_TOKEN
 
 # Prepare argument for the model and tokenizer
-#ARG MODEL_NAME="Weni/WeniGPT-L-70-4bit"
 #ARG MODEL_NAME="KaleDivergence/WeniGPT-L-70-AWQ"
-ARG MODEL_NAME=
+#ARG MODEL_NAME="KaleDivergence/WeniGPT-L-70-AWQ"
+ARG MODEL_NAME="KaleDivergence/WeniGPT-L-70-AWQ"
 ENV MODEL_NAME=$MODEL_NAME
 ARG MODEL_REVISION="main"
 ENV MODEL_REVISION=$MODEL_REVISION

@@ -11,7 +11,7 @@ import runpod
 import os
 
 # Prepare the model and tokenizer
-MODEL_NAME = os.environ.get('MODEL_NAME', "Weni/WeniGPT-L-70-4bit")
+MODEL_NAME = os.environ.get('MODEL_NAME', "KaleDivergence/WeniGPT-L-70-AWQ")
 MODEL_BASE_PATH = os.environ.get('MODEL_BASE_PATH', '/runpod-volume/')
 STREAMING = os.environ.get('STREAMING', False) == 'True'
 TOKENIZER = os.environ.get('TOKENIZER', None)
@@ -37,8 +37,14 @@ engine_args = AsyncEngineArgs(
     seed=0,
     max_num_batched_tokens=8192,
     disable_log_stats=False,
+    max_model_len=4094,
     # max_num_seqs=256,
 )
+
+#ValueError: max_num_batched_tokens (8192) is smaller than max_model_len (32768). 
+# This effectively limits the maximum sequence length to max_num_batched_tokens and makes vLLM reject longer sequences. 
+# Please increase max_num_batched_tokens or decrease max_model_len.
+# https://github.com/vllm-project/vllm/issues/1189
 
 # Create the vLLM asynchronous engine
 llm = AsyncLLMEngine.from_engine_args(engine_args)
