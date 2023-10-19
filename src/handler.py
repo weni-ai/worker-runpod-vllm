@@ -29,12 +29,16 @@ except ValueError:
 
 # Prepare the engine's arguments
 engine_args = AsyncEngineArgs(
-    model=f"{MODEL_BASE_PATH}{MODEL_NAME.split('/')[1]}",
-    tokenizer=TOKENIZER,
+    model="KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS",
+    tokenizer="KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS",
     tokenizer_mode="auto",
-    tensor_parallel_size=NUM_GPU_SHARD,
-    dtype="auto",
+    tensor_parallel_size=1,
+    dtype="half",
+    quantization="awq",
+    host="0.0.0.0",
+    port=8080,
     seed=0,
+    gpu_memory_utilization=0.95,
     max_num_batched_tokens=8192,
     disable_log_stats=False,
     max_model_len=4094,
