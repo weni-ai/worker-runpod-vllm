@@ -14,7 +14,7 @@ fi
 #        --tensor-parallel-size 2 \
 #        --worker-use-ray \
 #        --host 0.0.0.0 \
-#        --port 8080 \
+#        --port 8000 \
 #        --gpu-memory-utilization 0.45 \
 #        --max-num-batched-tokens 32768
 #        --quantization awq 

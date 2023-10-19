@@ -86,10 +86,10 @@ ENV PORT=80 \
 # Run the Python script to download the model
 RUN python -u /download_model.py
 
-EXPOSE 8080 6379 80
+EXPOSE 8000 6379 80
 
 # Start the handler
 CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
 
 #ENTRYPOINT ["./entrypoint.sh"]
-#CMD ["--model", "KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS", "--host", "0.0.0.0", "--port", "8080", "--gpu-memory-utilization", "0.95", "--tensor-parallel-size", "1", "--tokenizer-mode", "auto", "--seed", "0", "--quantization", "awq", "--dtype", "half"]
+#CMD ["--model", "KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS", "--host", "0.0.0.0", "--port", "8000", "--gpu-memory-utilization", "0.95", "--tensor-parallel-size", "1", "--tokenizer-mode", "auto", "--seed", "0", "--quantization", "awq", "--dtype", "half"]
