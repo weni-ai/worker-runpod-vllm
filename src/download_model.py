@@ -14,7 +14,7 @@ if HUGGING_FACE_HUB_TOKEN:
     download_kwargs["token"] = HUGGING_FACE_HUB_TOKEN
 
 snapshot_download(
-    MODEL_NAME,
+    repo_id=MODEL_NAME,
     revision=MODEL_REVISION,
     local_dir=f"{MODEL_BASE_PATH}{MODEL_NAME.split('/')[1]}",
     **download_kwargs
