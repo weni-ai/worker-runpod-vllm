@@ -27,10 +27,10 @@ def create_or_update_template(template_id, name, container_disk_in_gb, image_nam
     input_fields = []
 
     if template_id:
-        input_fields.append(f'id: "{template_id}"') 
+        input_fields.append(f'id: "{template_id}"')
 
     input_fields.append(f'name: "{name}"')
-    input_fields.append(f'containerDiskInGb: {container_disk_in_gb}') 
+    input_fields.append(f'containerDiskInGb: {container_disk_in_gb}')
     input_fields.append(f'imageName: "{image_name}"')
     input_fields.append(f'readme: "{readme}"')
 
@@ -61,11 +61,11 @@ def create_or_update_endpoint(endpoint_id, endpoint_name, template_id, gpu_ids, 
     input_fields = []
 
     if endpoint_id:
-        input_fields.append(f'id: "{endpoint_id}"') 
+        input_fields.append(f'id: "{endpoint_id}"')
 
     input_fields.append(f'name: "{endpoint_name}"')
     input_fields.append(f'templateId: "{template_id}"')
-    input_fields.append(f'gpuIds: "{gpu_ids}"') 
+    input_fields.append(f'gpuIds: "{gpu_ids}"')
     input_fields.append(f'workersMin: {workers_min}')
     input_fields.append(f'workersMax: {workers_max}')
 
@@ -195,11 +195,11 @@ if __name__ == "__main__":
         case "promote":
             source_name = os.environ.get("RUNPOD_SOURCE_ENDPOINT")
             target_name = os.environ.get("RUNPOD_TARGET_ENDPOINT")
-    
+
             source, target = [next(endpoint for endpoint in endpoints if endpoint['name'] == name) for name in [source_name, target_name]]
-    
+
             source['name'], target['name'] = target['name'], source['name']
-    
+
             make_graphql_request(create_or_update_endpoint(*source.values()))
             make_graphql_request(create_or_update_endpoint(*target.values()))
 
