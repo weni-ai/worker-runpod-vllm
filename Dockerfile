@@ -33,7 +33,7 @@ RUN echo "$(pip list | grep torch)"
 RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 
 RUN pip install fastapi==0.99.1 \
-        vllm==0.2.0 \
+        vllm==0.2.1 \
         huggingface-hub==0.16.4 \
         runpod==1.2.1
 
