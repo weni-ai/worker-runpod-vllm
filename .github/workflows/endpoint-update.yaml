@@ -9,7 +9,6 @@ on:
 
 env:
   DOCKER_IMAGE: irdgss/sandbox
-  MODEL_NAME: Weni/ZeroShot-3.0.1-Mistral-7b-Multilanguage-3.0.3
 
 jobs:
   build_and_push:
@@ -17,17 +16,6 @@ jobs:
     outputs:
       version: ${{ steps.meta.outputs.version }}
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-
       - name: Checkout Repository
         uses: actions/checkout@v3
 
@@ -55,9 +43,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            MODEL_NAME=${{ env.MODEL_NAME }}
-            TOKENIZER=${{ env.MODEL_NAME }}
 
   deploy_to_runpod:
     needs: build_and_push
@@ -70,6 +55,24 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
+      - name: Install Python Dependencies
+        run: pip install requests pyyaml
+
+      - name: Set environment from YAML config
+        run: |
+          import yaml
+          import os
+
+          with open('config.yaml', 'r') as file:
+              config = yaml.safe_load(file)
+
+          env_file = os.getenv('GITHUB_ENV')
+
+          with open(env_file, 'a') as env:
+              for key, value in config.items():
+                  env.write(f'RUNPOD_VAR_{key}={value}\n')
+        shell: python
 
       - name: Deploy to RunPod - Staging
         if: contains(github.ref, 'staging')
