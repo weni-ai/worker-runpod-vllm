@@ -76,6 +76,8 @@ ENV TRANSFORMERS_CACHE="/runpod-volume/huggingface-cache/hub"
 # Download the models
 RUN mkdir -p /model
 
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
 # Set environment variables
 ENV PORT=80 \
     MODEL_NAME=$MODEL_NAME \
@@ -83,13 +85,17 @@ ENV PORT=80 \
     MODEL_BASE_PATH=$MODEL_BASE_PATH \
     HUGGING_FACE_HUB_TOKEN=$HUGGING_FACE_HUB_TOKEN
 
-# Run the Python script to download the model
-RUN python -u /download_model.py
+# Conditionally download the model weights based on DOWNLOAD_MODEL
+RUN if [ "$DOWNLOAD_MODEL" = "1" ]; then \
+    python -u /download_model.py; \
+  fi
 
 EXPOSE 8000 6379 80
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
 # Start the handler
-CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
+#CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
 
 #ENTRYPOINT ["./entrypoint.sh"]
 #CMD ["--model", "KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS", "--host", "0.0.0.0", "--port", "8000", "--gpu-memory-utilization", "0.95", "--tensor-parallel-size", "1", "--tokenizer-mode", "auto", "--seed", "0", "--quantization", "awq", "--dtype", "half"]
