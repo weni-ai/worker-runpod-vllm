@@ -1,0 +1,80 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    tags:
+      - '*.*.*-develop'
+      - '*.*.*-staging'
+      - '*.*.*'
+
+env:
+  DOCKER_IMAGE: irdgss/sandbox
+  MODEL_NAME: Weni/ZeroShot-3.0.1-Mistral-7b-Multilanguage-3.0.3
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: type=ref,event=tag
+          flavor: latest=false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            MODEL_NAME=${{ env.MODEL_NAME }}
+            TOKENIZER=${{ env.MODEL_NAME }}
+
+  deploy_to_runpod:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Deploy to RunPod - Staging
+        if: contains(github.ref, 'staging')
+        run: python -u runpod.py
+        working-directory: .github/workflows
+        env:
+          RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
+          RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
+          RUNPOD_ENDPOINT: "will_be_deleted"
+          SAFE_DEPLOY: "false"
+
+      - name: Deploy to RunPod - Production
+        if: ${{ !contains(github.ref, 'staging') && !contains(github.ref, 'develop') }}
+        run: python runpod.py
+        working-directory: .github/workflows
+        env:
+          RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
+          RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
+          RUNPOD_ENDPOINT: "will_be_deleted"
