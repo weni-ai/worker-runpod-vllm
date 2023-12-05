@@ -102,7 +102,7 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "zeroshot-staging"
+          RUNPOD_ENDPOINT: "zeroshot-endpoint"
 
   promote_endpoint:
     needs: [build_and_push, deploy_to_runpod]
@@ -130,13 +130,13 @@ jobs:
         working-directory: .github/workflows
         env:
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_SOURCE_ENDPOINT: "zeroshot-staging-preview"
-          RUNPOD_TARGET_ENDPOINT: "zeroshot-staging"
+          RUNPOD_SOURCE_ENDPOINT: "zeroshot-endpoint-preview"
+          RUNPOD_TARGET_ENDPOINT: "zeroshot-endpoint"
 
       - name: Check out Kubernetes Manifests
         uses: actions/checkout@v3
         with:
-          ref: sandbox
+          ref: main
           repository: ${{ env.MANIFESTS_REPOSITORY }}
           token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
           path: ./kubernetes-manifests/
@@ -159,5 +159,5 @@ jobs:
           github_token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
           repository: "${{ env.MANIFESTS_REPOSITORY }}"
           directory: ./kubernetes-manifests
-          branch: sandbox
+          branch: main
           message: "From Zeroshot 2.0 Action (Manually Triggered)"
