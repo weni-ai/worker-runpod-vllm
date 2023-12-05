@@ -8,7 +8,7 @@ on:
       - '*.*.*'
 
 env:
-  DOCKER_IMAGE: ilhasoft/zeroshot-mistral-7b
+  DOCKER_IMAGE: ilhasoft/worker-runpod-vllm
 
 jobs:
   build_and_push:
