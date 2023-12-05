@@ -8,7 +8,7 @@ on:
       - '*.*.*'
 
 env:
-  DOCKER_IMAGE: irdgss/sandbox
+  DOCKER_IMAGE: ilhasoft/zeroshot-mistral-7b
 
 jobs:
   build_and_push:
@@ -92,7 +92,7 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "will_be_deleted"
+          RUNPOD_ENDPOINT: "zeroshot-staging"
           SAFE_DEPLOY: "false"
 
       - name: Deploy to RunPod - Production
@@ -102,4 +102,62 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "will_be_deleted"
+          RUNPOD_ENDPOINT: "zeroshot-endpoint"
+
+  promote_endpoint:
+    needs: [build_and_push, deploy_to_runpod]
+    if: ${{ !contains(github.ref, 'staging') && !contains(github.ref, 'develop') }}
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      MANIFESTS_REPOSITORY: weni-ai/kubernetes-manifests-artificial-intelligence
+      MANIFESTS_APPLICATION: runpod-proxy
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Python Dependencies
+        run: pip install requests
+
+      - name: Promote Staging to Production - RunPod
+        id: promote
+        run: python -u runpod.py promote
+        working-directory: .github/workflows
+        env:
+          RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
+          RUNPOD_SOURCE_ENDPOINT: "zeroshot-endpoint-preview"
+          RUNPOD_TARGET_ENDPOINT: "zeroshot-endpoint"
+
+      - name: Check out Kubernetes Manifests
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          repository: ${{ env.MANIFESTS_REPOSITORY }}
+          token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
+          path: ./kubernetes-manifests/
+
+      - name: Update values on Deployment
+        run: |
+          MANIFESTS_ENVIRONMENTS=("develop" "production")
+
+          for ENV in "${MANIFESTS_ENVIRONMENTS[@]}"; do
+              MANIFESTS_PATCH_TARGET="${ENV}/deployment.json"
+              if [ -f "$MANIFESTS_PATCH_TARGET" ]; then
+                  cat <<< $(jq --arg new_endpoint "${{ steps.promote.outputs.endpoint }}" '.[0].value = $new_endpoint' $MANIFESTS_PATCH_TARGET) > $MANIFESTS_PATCH_TARGET
+              fi
+          done
+        working-directory: kubernetes-manifests/${{ env.MANIFESTS_APPLICATION }}
+
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
+          repository: "${{ env.MANIFESTS_REPOSITORY }}"
+          directory: ./kubernetes-manifests
+          branch: main
+          message: "From Zeroshot 2.0 Action (Manually Triggered)"
