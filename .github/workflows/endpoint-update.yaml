@@ -92,7 +92,7 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "will_be_deleted"
+          RUNPOD_ENDPOINT: "zeroshot-staging"
           SAFE_DEPLOY: "false"
 
       - name: Deploy to RunPod - Production
@@ -102,4 +102,4 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "will_be_deleted"
+          RUNPOD_ENDPOINT: "zeroshot-endpoint"
