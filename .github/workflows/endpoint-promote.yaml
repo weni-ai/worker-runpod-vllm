@@ -2,6 +2,7 @@ name: Promote Endpoint
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 env:
   MANIFESTS_REPOSITORY: weni-ai/kubernetes-manifests-artificial-intelligence
@@ -28,8 +29,8 @@ jobs:
         working-directory: .github/workflows
         env:
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_SOURCE_ENDPOINT: "zeroshot-endpoint-preview"
-          RUNPOD_TARGET_ENDPOINT: "zeroshot-endpoint"
+          RUNPOD_SOURCE_ENDPOINT: "will_be_deleted-preview"
+          RUNPOD_TARGET_ENDPOINT: "will_be_deleted"
 
       - name: Check out Kubernetes Manifests
         uses: actions/checkout@v3
@@ -57,5 +58,5 @@ jobs:
           github_token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
           repository: "${{ env.MANIFESTS_REPOSITORY }}"
           directory: ./kubernetes-manifests
-          branch: main
+          branch: sandbox
           message: "From Zeroshot (${{ env.MANIFESTS_ENVIRONMENT }})"

@@ -92,7 +92,7 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "zeroshot-staging"
+          RUNPOD_ENDPOINT: "will_be_deleted"
           SAFE_DEPLOY: "false"
 
       - name: Deploy to RunPod - Production
@@ -102,4 +102,12 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "zeroshot-endpoint"
+          RUNPOD_ENDPOINT: "will_be_deleted"
+
+  promote_endpoint:
+    needs: [build_and_push, deploy_to_runpod]
+    if: ${{ !contains(github.ref, 'staging') && !contains(github.ref, 'develop') }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: .github/workflows/promote-endpoint.yaml
