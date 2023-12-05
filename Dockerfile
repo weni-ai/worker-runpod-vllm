@@ -68,6 +68,7 @@ ARG TOKENIZER='KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS'
 ENV TOKENIZER=$TOKENIZER
 ARG STREAMING='false'
 ENV STREAMING=$STREAMING
+ARG DOWNLOAD_MODEL
 
 ENV HF_DATASETS_CACHE="/runpod-volume/huggingface-cache/datasets"
 ENV HUGGINGFACE_HUB_CACHE="/runpod-volume/huggingface-cache/hub"
