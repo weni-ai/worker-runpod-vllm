@@ -1,7 +1,6 @@
 name: Promote Endpoint
 
 on:
-  workflow_dispatch:
   workflow_call:
 
 env:
@@ -11,6 +10,7 @@ env:
 jobs:
   promote_endpoint:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -29,8 +29,8 @@ jobs:
         working-directory: .github/workflows
         env:
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_SOURCE_ENDPOINT: "will_be_deleted-preview"
-          RUNPOD_TARGET_ENDPOINT: "will_be_deleted"
+          RUNPOD_SOURCE_ENDPOINT: "zeroshot-endpoint-preview"
+          RUNPOD_TARGET_ENDPOINT: "zeroshot-endpoint"
 
       - name: Check out Kubernetes Manifests
         uses: actions/checkout@v3
@@ -58,5 +58,5 @@ jobs:
           github_token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
           repository: "${{ env.MANIFESTS_REPOSITORY }}"
           directory: ./kubernetes-manifests
-          branch: sandbox
+          branch: main
           message: "From Zeroshot (${{ env.MANIFESTS_ENVIRONMENT }})"

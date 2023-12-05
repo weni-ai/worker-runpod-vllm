@@ -8,7 +8,7 @@ on:
       - '*.*.*'
 
 env:
-  DOCKER_IMAGE: irdgss/sandbox
+  DOCKER_IMAGE: ilhasoft/zeroshot-mistral-7b
 
 jobs:
   build_and_push:
@@ -92,7 +92,7 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "will_be_deleted"
+          RUNPOD_ENDPOINT: "zeroshot-staging"
           SAFE_DEPLOY: "false"
 
       - name: Deploy to RunPod - Production
@@ -102,12 +102,10 @@ jobs:
         env:
           RUNPOD_IMAGE: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
           RUNPOD_TOKEN: ${{ secrets.RUNPOD_TOKEN }}
-          RUNPOD_ENDPOINT: "will_be_deleted"
+          RUNPOD_ENDPOINT: "zeroshot-endpoint"
 
-  promote_endpoint:
+  call_workflow:
     needs: [build_and_push, deploy_to_runpod]
     if: ${{ !contains(github.ref, 'staging') && !contains(github.ref, 'develop') }}
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: ./.github/workflows/promote-endpoint.yaml
+    uses: ./.github/workflows/endpoint-promote.yaml
+    secrets: inherit
