@@ -17,8 +17,9 @@ STREAMING = os.environ.get('STREAMING', False) == 'True'
 TOKENIZER = os.environ.get('TOKENIZER', None)
 USE_FULL_METRICS = os.environ.get('USE_FULL_METRICS', True)
 QUANTIZATION = os.environ.get('QUANTIZATION', None)
-MAX_MODEL_LEN = os.environ.get('MAX_MODEL_LEN', 4094)
-MAX_NUM_BATCHED_TOKENS = os.environ.get('MAX_NUM_BATCHED_TOKENS', 8192)
+MAX_MODEL_LEN = int(os.environ.get('MAX_MODEL_LEN', '4094'))
+MAX_NUM_BATCHED_TOKENS = int(os.environ.get('MAX_NUM_BATCHED_TOKENS', '8192'))
+MAX_NUM_SEQS = int(os.environ.get('MAX_NUM_SEQS', '256'))
 
 if not MODEL_NAME:
     print("Error: The model has not been provided.")
@@ -43,7 +44,7 @@ engine_args = AsyncEngineArgs(
     max_num_batched_tokens=MAX_NUM_BATCHED_TOKENS,
     disable_log_stats=False,
     max_model_len=MAX_MODEL_LEN,
-    # max_num_seqs=256,
+    max_num_seqs=MAX_NUM_SEQS,
 )
 
 #ValueError: max_num_batched_tokens (8192) is smaller than max_model_len (32768). 
