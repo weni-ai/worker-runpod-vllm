@@ -54,3 +54,41 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  patch_endpoints:
+    runs-on: ubuntu-latest
+    needs:
+      - build_and_push
+    strategy:
+      matrix:
+        file:
+          - zeroshot
+    env:
+      ENDPOINTS_REPOSITORY: weni-ai/runpod-endpoints
+    steps:
+      - name: Check out Kubernetes Manifests
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          repository: ${{ env.ENDPOINTS_REPOSITORY }}
+          token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
+
+      - name: Update values on config
+        env:
+          IMAGE_TAG: ${{ env.DOCKER_IMAGE }}:${{ needs.build_and_push.outputs.version }}
+        run: |
+          ENV_TARGET=$(echo ${{ needs.build_and_push.outputs.version }} | grep -Eo 'staging|develop' || echo 'production')
+
+          PATCH_TARGET="${ENV_TARGET}/${{ matrix.file }}.yaml"
+
+          if [ -f "$PATCH_TARGET" ]; then
+            yq -i ".endpoint.imageName = \"${{ env.IMAGE_TAG }}\"" $PATCH_TARGET
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.DEVOPS_GITHUB_PERMANENT_TOKEN }}
+          commit-message: Auto-update file ${{ matrix.file }}
+          branch: update/${{ matrix.file }}/${{ needs.build_and_push.outputs.version }}
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
