@@ -1,5 +1,0 @@
-# File used to configure RunPod environment variables
-MODEL_NAME: &model Weni/ZeroShot-3.0.3-Mistral-7b-Multilanguage-3.0.3-AWQ
-TOKENIZER: *model
-QUANTIZATION: awq
-MAX_NUM_SEQS: 20
