@@ -49,9 +49,6 @@ RUN chmod +x ./benchmark.py && \
     chmod +x ./templates.py && \
     chmod +x ./entrypoint.sh
 
-# Quick temporary updates
-RUN pip install git+https://github.com/runpod/runpod-python@a1#egg=runpod --compile
-
 # Prepare the models inside the docker image
 ARG HUGGING_FACE_HUB_TOKEN=
 ENV HUGGING_FACE_HUB_TOKEN=$HUGGING_FACE_HUB_TOKEN
