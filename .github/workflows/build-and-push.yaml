@@ -65,6 +65,7 @@ jobs:
       matrix:
         file:
           - zeroshot
+          - wenigpt
     env:
       ENDPOINTS_REPOSITORY: weni-ai/runpod-endpoints
     steps:
