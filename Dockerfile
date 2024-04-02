@@ -12,13 +12,13 @@ WORKDIR /
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install supported GCC version
-#RUN apt-get update && \
+RUN apt-get update && apt-get -y upgrade
 #    apt-get install -y gcc-11 g++-11 && \
 #    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 50 --slave /usr/bin/g++ g++ /usr/bin/g++-11
 
 RUN pip install --upgrade pip
 RUN pip uninstall torch -y
-RUN pip install torch==2.1.0 -f https://download.pytorch.org/whl/cu118
+RUN pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cu118
 
 COPY builder/setup.sh /setup.sh
 RUN chmod +x /setup.sh
@@ -78,6 +78,7 @@ ENV TRANSFORMERS_CACHE="/runpod-volume/huggingface-cache/hub"
 RUN mkdir -p /model
 
 COPY docker-entrypoint.sh docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
 
 # Set environment variables
 ENV PORT=80 \
@@ -94,7 +95,7 @@ RUN if [ "$DOWNLOAD_MODEL" = "1" ]; then \
 EXPOSE 8000 6379 80
 
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Start the handler
 #CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
