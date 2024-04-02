@@ -35,8 +35,8 @@ RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 
 # TODO: change huggingface_hub when hotfix is released
 RUN pip install fastapi==0.110.0 \
-        vllm==0.4.0 \
-        git+https://github.com/huggingface/huggingface_hub@2186-fix-safetensors-info \
+        vllm==0.3.9 \
+        huggingface-hub==0.21.4 \
         runpod==1.6.2 \
         flash-attn==2.5.6
 
