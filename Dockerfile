@@ -1,6 +1,6 @@
 # Base image
 # The following docker base image is recommended by VLLM: 
-FROM runpod/pytorch:2.0.1-py3.10-cuda11.8.0-devel
+FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
 
 # Use bash shell with pipefail option
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -18,11 +18,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN pip install --upgrade pip
 RUN pip uninstall torch -y
-RUN pip install torch==2.0.1 -f https://download.pytorch.org/whl/cu118
+RUN pip install torch==2.1.0 -f https://download.pytorch.org/whl/cu118
 COPY builder/setup.sh /setup.sh
-RUN chmod +x /setup.sh && \
-    /setup.sh && \
-    rm /setup.sh
+RUN chmod +x /setup.sh
+RUN bash setup.sh 
+RUN rm /setup.sh
 
 # Set CUDA environment variables
 ENV cuda_home=/usr/local/cuda-11.8
@@ -32,10 +32,10 @@ ENV LD_LIBRARY_PATH=${cuda_home}/lib64:$LD_LIBRARY_PATH
 RUN echo "$(pip list | grep torch)"
 RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 
-RUN pip install fastapi==0.99.1 \
-        vllm==0.2.1 \
-        huggingface-hub==0.16.4 \
-        runpod==1.2.1
+RUN pip install fastapi==0.110.0 \
+        vllm==0.4.0 \
+        huggingface-hub==0.22.2 \
+        runpod==1.6.2
 
 RUN echo "$(pip list | grep torch)"
 RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
@@ -55,13 +55,13 @@ ENV HUGGING_FACE_HUB_TOKEN=$HUGGING_FACE_HUB_TOKEN
 ENV HF_TOKEN=$HUGGING_FACE_HUB_TOKEN
 
 # Prepare argument for the model and tokenizer
-ARG MODEL_NAME='KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS'
+ARG MODEL_NAME='Weni/WeniGPT-QA-Mixstral-7B-5.0.0-KTO-AWQ'
 ENV MODEL_NAME=$MODEL_NAME
 ARG MODEL_REVISION="main"
 ENV MODEL_REVISION=$MODEL_REVISION
 ARG MODEL_BASE_PATH="/runpod-volume/"
 ENV MODEL_BASE_PATH=$MODEL_BASE_PATH
-ARG TOKENIZER='KaleDivergence/WeniGPT-L-70-AWQ-NO-SAFETENSORS'
+ARG TOKENIZER='Weni/WeniGPT-QA-Mixstral-7B-5.0.0-KTO-AWQ'
 ENV TOKENIZER=$TOKENIZER
 ARG STREAMING='false'
 ENV STREAMING=$STREAMING
