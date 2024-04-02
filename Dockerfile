@@ -34,8 +34,9 @@ RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 
 RUN pip install fastapi==0.110.0 \
         vllm==0.4.0 \
-        huggingface-hub==0.22.2 \
-        runpod==1.6.2
+        git+https://github.com/huggingface/huggingface_hub@2186-fix-safetensors-info \
+        runpod==1.6.2 \
+        flash-attn==2.5.6
 
 RUN echo "$(pip list | grep torch)"
 RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
@@ -74,7 +75,7 @@ ENV TRANSFORMERS_CACHE="/runpod-volume/huggingface-cache/hub"
 # Download the models
 RUN mkdir -p /model
 
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY docker-entrypoint.sh docker-entrypoint.sh
 
 # Set environment variables
 ENV PORT=80 \
@@ -90,7 +91,8 @@ RUN if [ "$DOWNLOAD_MODEL" = "1" ]; then \
 
 EXPOSE 8000 6379 80
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Start the handler
 #CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
