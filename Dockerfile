@@ -17,8 +17,6 @@ RUN apt-get update && apt-get -y upgrade
 #    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 50 --slave /usr/bin/g++ g++ /usr/bin/g++-11
 
 RUN pip install --upgrade pip
-RUN pip uninstall torch -y
-RUN pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cu118
 
 COPY builder/setup.sh /setup.sh
 RUN chmod +x /setup.sh
