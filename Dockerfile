@@ -33,7 +33,7 @@ RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 
 # TODO: change huggingface_hub when hotfix is released
 RUN pip install fastapi==0.110.0 \
-        git+https://github.com/vllm-project/vllm@main \
+        vllm==0.4.0.post1 \
         git+https://github.com/huggingface/huggingface_hub.git@main \
         runpod==1.6.2 \
         flash-attn==2.5.6
@@ -93,7 +93,7 @@ RUN if [ "$DOWNLOAD_MODEL" = "1" ]; then \
 EXPOSE 8000 6379 80
 
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["bash docker-entrypoint.sh"]
 
 # Start the handler
 #CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
