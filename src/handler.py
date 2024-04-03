@@ -254,10 +254,10 @@ async def handler_streaming(job: dict) -> Generator[dict[str, list], None, None]
         }
 
         # Include metrics for the job.
-        runpod.serverless.modules.rp_metrics.metrics_collector.push_metrics_internal(
-            job_id=job['id'], 
-            metrics=runpod_metrics
-        )        
+        # runpod.serverless.modules.rp_metrics.metrics_collector.push_metrics_internal(
+        #     job_id=job['id'], 
+        #     metrics=runpod_metrics
+        # )        
 
         # Keep track of the final output
         final_output = request_output
@@ -283,10 +283,10 @@ async def handler_streaming(job: dict) -> Generator[dict[str, list], None, None]
             }
     
         # Update the aggregate transformation function
-        runpod.serverless.modules.rp_metrics.metrics_collector.update_stream_aggregate(
-            job_id=job['id'], 
-            aggregate_function=aggregate_function
-        )
+        # runpod.serverless.modules.rp_metrics.metrics_collector.update_stream_aggregate(
+        #     job_id=job['id'], 
+        #     aggregate_function=aggregate_function
+        # )
 
         # Yield the output
         yield ret
@@ -347,10 +347,10 @@ async def handler(job: dict) -> dict[str, list]:
     runpod_metrics['scenario'] = 'batch'
 
     # Include metrics for the job.
-    runpod.serverless.modules.rp_metrics.metrics_collector.push_metrics_internal(
-        job_id=job['id'], 
-        metrics=runpod_metrics
-    )
+    # runpod.serverless.modules.rp_metrics.metrics_collector.push_metrics_internal(
+    #     job_id=job['id'], 
+    #     metrics=runpod_metrics
+    # )
 
     ret = {
         "text": text_outputs,
