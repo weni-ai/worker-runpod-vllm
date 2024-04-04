@@ -33,7 +33,7 @@ RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 
 # TODO: change huggingface_hub when hotfix is released
 COPY requirements.txt requirements.txt
-RUN pip install requirements.txt
+RUN pip install -r requirements.txt
 
 RUN echo "$(pip list | grep torch)"
 RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
