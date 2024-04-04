@@ -32,7 +32,8 @@ RUN echo "$(pip list | grep torch)"
 RUN echo "$(python -c 'import torch; print(torch.version.cuda)')"
 
 # TODO: change huggingface_hub when hotfix is released
-COPY requirements.txt requirements.txt
+COPY requirements.txt /requirements.txt
+RUN chmod +x /requirements.txt
 RUN pip install -r requirements.txt
 
 RUN echo "$(pip list | grep torch)"
@@ -90,7 +91,7 @@ RUN if [ "$DOWNLOAD_MODEL" = "1" ]; then \
 EXPOSE 8000 6379 80
 
 
-# ENTRYPOINT ["bash docker-entrypoint.sh"]
+ENTRYPOINT ["bash docker-entrypoint.sh"]
 
 # Start the handler
 #CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
