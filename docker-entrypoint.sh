@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if [[ -z "${MODEL_NAME}" ]]; then
 	echo "MODEL_NAME must be set"
 	exit 1
