@@ -73,8 +73,8 @@ ENV TRANSFORMERS_CACHE="/runpod-volume/huggingface-cache/hub"
 # Download the models
 RUN mkdir -p /model
 
-COPY docker-entrypoint.sh docker-entrypoint.sh
-RUN chmod +x docker-entrypoint.sh
+COPY start.sh start.sh
+RUN chmod +x start.sh
 
 # Set environment variables
 ENV PORT=80 \
@@ -91,7 +91,7 @@ RUN if [ "$DOWNLOAD_MODEL" = "1" ]; then \
 EXPOSE 8000 6379 80
 
 
-ENTRYPOINT ["bash docker-entrypoint.sh"]
+ENTRYPOINT ["bash", "start.sh"]
 
 # Start the handler
 #CMD STREAMING=$STREAMING MODEL_NAME=$MODEL_NAME MODEL_BASE_PATH=$MODEL_BASE_PATH TOKENIZER=$TOKENIZER python -u /handler.py 
