@@ -90,7 +90,7 @@ RUN if [ "$DOWNLOAD_MODEL" = "1" ]; then \
 
 EXPOSE 8000 6379 80
 
-
+# TODO: testing mixstral model
 # ENTRYPOINT ["bash", "start.sh"]
 
 # Start the handler
